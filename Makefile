@@ -3,12 +3,17 @@ build:
 
 start: stop
 	docker run -d --name hhvm-nuclide \
+		--net elk -e ELASTICSEARCH_URL="es:9200" \
+		-h hhvm-nuclide \
 		-v $(PWD)/web-root:/web-root \
 		-p 2222:22 -p 8000:80 -p 9000:9000 -p 9090:9090 \
 		hhvm-nuclide
 
 stop:
 	docker rm -f hhvm-nuclide || echo "skip..."
+
+logs:
+	docker logs -f hhvm-nuclide
 
 debug:
 	docker exec -ti hhvm-nuclide bash

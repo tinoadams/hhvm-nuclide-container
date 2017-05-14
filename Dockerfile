@@ -46,10 +46,19 @@ RUN wget https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.
     && dpkg -i dumb-init_*.deb \
     && rm -f dumb-init_*.deb
 RUN apt-get install -y supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "supervisord", "-n"]
+RUN apt-get install -y gettext-base
 
-# configure hhvm
+RUN wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.4.0-amd64.deb \
+    && dpkg -i filebeat*.deb \
+    && rm -f filebeat*.deb
+
+COPY entry.sh /
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["bash", "-e", "/entry.sh"]
+
+# config files
 COPY php.ini /etc/hhvm/php.ini
 COPY server.ini /etc/hhvm/server.ini
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY filebeat.yml.tpl /etc/filebeat/
